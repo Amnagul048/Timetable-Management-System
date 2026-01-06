@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Faculty Management</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f1f5f9;
+  margin:0;
+}
+
+header{
+  background:#1e293b;
+  color:white;
+  padding:15px;
+  text-align:center;
+}
+
+.form-section{
+  text-align:center;
+  margin:20px;
+}
+
+.form-section input{
+  padding:8px;
+  width:260px;
+  font-size:14px;
+}
+
+.form-section button{
+  padding:8px 15px;
+  margin-left:10px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.form-section button:hover{
+  background:#1d4ed8;
+}
+
+.table-section{
+  width:60%;
+  margin:20px auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+}
+
+th, td{
+  padding:10px;
+  text-align:center;
+  border-bottom:1px solid #e5e7eb;
+}
+
+th{
+  background:#e2e8f0;
+}
+
+.edit-btn{
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.delete-btn{
+  background:#dc2626;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  border-radius:4px;
+  cursor:pointer;
+  margin-left:5px;
+}
+
+.edit-btn:hover{
+  background:#15803d;
+}
+
+.delete-btn:hover{
+  background:#b91c1c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Faculty Management</h2>
+</header>
+
+<section class="form-section">
+  <input type="text" id="facultyName" placeholder="Enter Faculty Name">
+  <button onclick="addFaculty()">Add Faculty</button>
+</section>
+
+<section class="table-section">
+  <table>
+    <thead>
+      <tr>
+        <th>Faculty Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="facultyList"></tbody>
+  </table>
+</section>
+
+<script>
+let faculties = [];
+
+function addFaculty(){
+  const input = document.getElementById("facultyName");
+  const name = input.value.trim();
+
+  if(name === ""){
+    alert("Please enter faculty name");
+    return;
+  }
+
+  faculties.push(name);
+  input.value = "";
+  displayFaculty();
+}
+
+function displayFaculty(){
+  const list = document.getElementById("facultyList");
+  list.innerHTML = "";
+
+  faculties.forEach((faculty, index) => {
+    list.innerHTML += `
+      <tr>
+        <td>${faculty}</td>
+        <td>
+          <button class="edit-btn" onclick="editFaculty(${index})">Edit</button>
+          <button class="delete-btn" onclick="deleteFaculty(${index})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function deleteFaculty(index){
+  faculties.splice(index, 1);
+  displayFaculty();
+}
+
+function editFaculty(index){
+  const updatedName = prompt("Update Faculty Name:", faculties[index]);
+  if(updatedName !== null && updatedName.trim() !== ""){
+    faculties[index] = updatedName.trim();
+    displayFaculty();
+  }
+}
+</script>
+
+</body>
+</html>

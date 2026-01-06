@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Conflict Detection & Resolution Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+  }
+  header {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    color: white;
+    padding: 1.25rem 2rem;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .container {
+    display: flex;
+    height: calc(100vh - 64px);
+  }
+  nav {
+    width: 260px;
+    background-color: #111827;
+    color: #d1d5db;
+    padding-top: 2rem;
+    display: flex;
+    flex-direction: column;
+  }
+  nav a {
+    color: #9ca3af;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+  }
+  nav a.active, nav a:hover {
+    border-left: 4px solid #f97316;
+    background-color: #1f2937;
+    color: white;
+  }
+  nav a + a {
+    margin-top: 0.3rem;
+  }
+  main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+  }
+  h2 {
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+  }
+  .conflict-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+  }
+  .conflict-table thead {
+    background: #f97316;
+    color: white;
+  }
+  .conflict-table th, 
+  .conflict-table td {
+    padding: 0.9rem 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.95rem;
+  }
+  .conflict-table tbody tr:hover {
+    background: #fef3c7;
+  }
+  .conflict {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  .btn-resolve {
+    background-color: #ef4444;
+    border: none;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  .btn-resolve:hover {
+    background-color: #b91c1c;
+  }
+  .btn-ignore {
+    background-color: #9ca3af;
+    border: none;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    transition: background-color 0.3s ease;
+  }
+  .btn-ignore:hover {
+    background-color: #6b7280;
+  }
+  .actions {
+    white-space: nowrap;
+  }
+  .empty-state {
+    margin-top: 4rem;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+  @media (max-width: 768px) {
+    nav {
+      width: 60px;
+      padding-top: 1rem;
+    }
+    nav a {
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0;
+      border: none;
+    }
+    nav a::before {
+      content: attr(data-icon);
+      display: block;
+      font-size: 1.5rem;
+      color: #9ca3af;
+    }
+    nav a.active::before,
+    nav a:hover::before {
+      color: #f97316;
+    }
+    nav a.active,
+    nav a:hover {
+      border-left: none;
+      background: #1f2937;
+      color: white;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  Conflict Detection &amp; Resolution
+</header>
+<div class="container">
+  <nav>
+    <a href="#" class="active" data-icon="⚠" title="Conflicts">Conflicts</a>
+    <a href="#" data-icon="📅" title="Timetable">Timetable</a>
+    <a href="#" data-icon="👤" title="Faculty">Faculty</a>
+    <a href="#" data-icon="⚙" title="Settings">Settings</a>
+  </nav>
+  <main>
+    <h2>Detected Conflicts</h2>
+    <table class="conflict-table" aria-describedby="conflictTableCaption">
+      <caption id="conflictTableCaption" class="sr-only">Conflicting Timetable Entries</caption>
+      <thead>
+        <tr>
+          <th>Conflict ID</th>
+          <th>Module 1</th>
+          <th>Module 2</th>
+          <th>Time Slot</th>
+          <th>Room</th>
+          <th>Faculty</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="conflictsBody">
+        <tr>
+          <td>#101</td>
+          <td>Math 101</td>
+          <td>Physics 201</td>
+          <td>08:00 - 09:30</td>
+          <td>Room 101</td>
+          <td>Prof. Smith / Dr. Johnson</td>
+          <td><span class="conflict">Conflict</span></td>
+          <td class="actions">
+            <button class="btn-resolve" onclick="resolveConflict('101')">Resolve</button>
+            <button class="btn-ignore" onclick="ignoreConflict('101')">Ignore</button>
+          </td>
+        </tr>
+        <tr>
+          <td>#102</td>
+          <td>Chemistry 101</td>
+          <td>Biology 201</td>
+          <td>11:30 - 13:00</td>
+          <td>Room 204</td>
+          <td>Dr. Kim / Prof. Green</td>
+          <td><span class="conflict">Conflict</span></td>
+          <td class="actions">
+            <button class="btn-resolve" onclick="resolveConflict('102')">Resolve</button>
+            <button class="btn-ignore" onclick="ignoreConflict('102')">Ignore</button>
+          </td>
+        </tr>
+        <tr>
+          <td>#103</td>
+          <td>History 101</td>
+          <td>English Lit</td>
+          <td>9:45 - 11:15</td>
+          <td>Room 302</td>
+          <td>Prof. Brown / Prof. Lee</td>
+          <td><span class="conflict">Conflict</span></td>
+          <td class="actions">
+            <button class="btn-resolve" onclick="resolveConflict('103')">Resolve</button>
+            <button class="btn-ignore" onclick="ignoreConflict('103')">Ignore</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p id="noConflictsMessage" class="empty-state" style="display:none;">No conflicts detected! Congratulations 🎉</p>
+  </main>
+</div>
+<script>
+  function resolveConflict(id) {
+    const rows = document.querySelectorAllWithText('#conflictsBody tr td:first-child', id);
+    if (rows.length > 0) {
+      const row = rows[0].parentElement;
+      row.remove();
+      alert('Conflict #' + id + ' marked as resolved.');
+      checkEmpty();
+    }
+  }
+
+  function ignoreConflict(id) {
+    const rows = document.querySelectorAllWithText('#conflictsBody tr td:first-child', id);
+    if (rows.length > 0) {
+      const row = rows[0].parentElement;
+      row.style.display = 'none';
+      alert('Conflict #' + id + ' ignored.');
+      checkEmpty();
+    }
+  }
+
+  function checkEmpty() {
+    const tbody = document.getElementById('conflictsBody');
+    const visibleRows = Array.from(tbody.children).filter(r => r.style.display !== 'none');
+    const noConflictsMessage = document.getElementById('noConflictsMessage');
+    noConflictsMessage.style.display = visibleRows.length === 0 ? 'block' : 'none';
+  }
+
+  // Polyfill for :contains() selector substitute for querySelector
+  document.querySelectorAllWithText = function(selector, text){
+    return Array.from(document.querySelectorAll(selector)).filter(el => el.textContent.includes(text));
+  };
+</script>
+</body>
+</html>

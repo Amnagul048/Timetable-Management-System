@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>University Timetable Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,sans-serif;background:#f4f7fc;color:#333}
+header{background:#2563eb;color:#fff;padding:20px;font-size:22px;font-weight:600}
+.container{display:flex;height:calc(100vh - 70px)}
+
+nav{width:260px;background:#1e293b;color:#cbd5e1;padding-top:10px}
+nav a{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 20px;color:#cbd5e1;
+  text-decoration:none;border-left:4px solid transparent;cursor:pointer
+}
+nav a:hover,nav a.active{
+  background:#334155;border-left-color:#3b82f6;color:#fff
+}
+
+main{flex:1;padding:25px;overflow:auto}
+h2{margin-top:0;color:#1e293b}
+
+table{
+  width:100%;border-collapse:collapse;background:#fff;
+  border-radius:8px;overflow:hidden;margin-top:10px
+}
+thead{background:#3b82f6;color:#fff}
+th,td{padding:12px;border-bottom:1px solid #e5e7eb}
+.time-slot{font-weight:600;color:#64748b;width:150px}
+
+.course{
+  background:#60a5fa;color:#fff;
+  padding:4px 8px;border-radius:5px;font-weight:600;
+  cursor:pointer;
+  transition:background 0.2s;
+}
+
+.course:hover {
+  background:#3b82f6;
+}
+
+.btn{
+  background:#3b82f6;color:#fff;border:none;
+  padding:6px 12px;border-radius:6px;
+  font-weight:600;cursor:pointer;
+  margin-right:5px;
+}
+.btn:hover{background:#2563eb}
+
+.btn-delete {
+  background:#ef4444;
+}
+.btn-delete:hover {
+  background:#dc2626;
+}
+
+input,select{padding:8px;margin:5px 5px 10px 0;width:220px}
+</style>
+</head>
+
+<body>
+
+<header>University Timetable Admin Dashboard</header>
+
+<div class="container">
+
+<nav>
+  <a class="active" onclick="show('timetable',this)">📅 Timetable</a>
+  <a onclick="show('courses',this)">📚 Courses</a>
+  <a onclick="show('modules',this)">📖 Modules</a>
+  <a onclick="show('professors',this)">👩‍🏫 Professors</a>
+  <a onclick="show('conflicts',this)">⚠ Conflicts</a>
+  <a onclick="show('settings',this)">⚙ Settings</a>
+</nav>
+
+<main>
+
+<!-- TIMETABLE -->
+<div id="timetable">
+<h2>Weekly Timetable</h2>
+
+<input id="className" placeholder="Class Name">
+<select id="classDay">
+<option value="">Day</option>
+<option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option>
+</select>
+
+<select id="classTime">
+<option value="">Time</option>
+<option>8:00 - 9:30</option><option>9:45 - 11:15</option><option>11:30 - 13:00</option><option>14:00 - 15:30</option><option>15:45 - 17:15</option>
+</select>
+
+<button class="btn" onclick="addClass()">Add Class</button>
+
+<table id="timetableTable">
+<thead>
+<tr>
+<th class="time-slot">Time</th>
+<th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th>
+</tr>
+</thead>
+<tbody>
+<tr><td class="time-slot">8:00 - 9:30</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td class="time-slot">9:45 - 11:15</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td class="time-slot">11:30 - 13:00</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td class="time-slot">14:00 - 15:30</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td class="time-slot">15:45 - 17:15</td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- COURSES -->
+<div id="courses" style="display:none">
+<h2>Courses</h2>
+<input id="courseName" placeholder="Course Name">
+<button class="btn" onclick="addCourse()">Add</button>
+<table>
+  <thead>
+    <tr>
+      <th>Course Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="courseTable"></tbody>
+</table>
+</div>
+
+<!-- MODULES -->
+<div id="modules" style="display:none">
+<h2>Modules</h2>
+<input id="moduleName" placeholder="Module Name">
+<input id="moduleCourse" placeholder="Course">
+<button class="btn" onclick="addModule()">Add</button>
+<table>
+  <thead>
+    <tr>
+      <th>Module Name</th>
+      <th>Course</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="moduleTable"></tbody>
+</table>
+</div>
+
+<!-- PROFESSORS -->
+<div id="professors" style="display:none">
+<h2>Professors</h2>
+<input id="profName" placeholder="Professor Name">
+<input id="profDept" placeholder="Department">
+<button class="btn" onclick="addProfessor()">Add</button>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="profTable"></tbody>
+</table>
+</div>
+
+<!-- CONFLICTS -->
+<div id="conflicts" style="display:none">
+<h2>Class Conflicts</h2>
+<p><strong>Total Conflicts:</strong> <span id="conflictCount">0</span></p>
+<table>
+<thead>
+<tr>
+<th>Day</th><th>Time</th><th>Existing Class</th><th>New Class</th><th>Actions</th>
+</tr>
+</thead>
+<tbody id="conflictTable"></tbody>
+</table>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" style="display:none">
+<h2>Settings</h2>
+<select onchange="changeTheme(this.value)">
+<option value="light">Light</option>
+<option value="dark">Dark</option>
+</select>
+</div>
+
+</main>
+</div>
+
+<script>
+const sections=["timetable","courses","modules","professors","conflicts","settings"];
+let totalConflicts=0;
+
+// --- ID Counters for unique identification ---
+let courseIdCounter = 0;
+let moduleIdCounter = 0;
+let profIdCounter = 0;
+
+// --- Predefined Data ---
+const predefinedClasses = [
+  { name: "Maths", day: "Monday", time: "8:00 - 9:30" },
+  { name: "Web Tech", day: "Monday", time: "9:45 - 11:15" },
+  { name: "ict", day: "Monday", time: "14:00 - 15:30" },
+  { name: "Physics", day: "Tuesday", time: "9:45 - 11:15" },
+  { name: "Chemistry", day: "Wednesday", time: "15:45 - 17:15" },
+  { name: "Computer Science", day: "Thursday", time: "14:00 - 15:30" },
+  { name: "English", day: "Friday", time: "15:45 - 17:15" }
+];
+
+const predefinedCourses = ["Computer Science", "Business Administration", "Mechanical Engineering"];
+const predefinedModules = [
+  { name: "CS101: Intro to Programming", course: "Computer Science" },
+  { name: "BA201: Marketing Fundamentals", course: "Business Administration" }
+];
+const predefinedProfessors = [
+  { name: "Dr. Alice", dept: "Computer Science" },
+  { name: "Prof. Bob", dept: "Business" },
+  { name: "Dr. Charlie", dept: "Mechanical Engineering" }
+];
+
+// --- Section Navigation ---
+function show(id,el){
+  sections.forEach(s=>document.getElementById(s).style.display="none");
+  document.getElementById(id).style.display="block";
+  document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+  el.classList.add("active");
+}
+
+// --- Load Predefined Data on Startup ---
+window.onload = function() {
+  loadPredefinedClasses();
+  predefinedCourses.forEach(c => addCourse(c));
+  predefinedModules.forEach(m => addModule(m.name, m.course));
+  predefinedProfessors.forEach(p => addProfessor(p.name, p.dept));
+};
+
+// --- TIMETABLE FUNCTIONS (No changes here) ---
+function loadPredefinedClasses(){
+  predefinedClasses.forEach(cls=>{
+    const col={Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5}[cls.day];
+    document.querySelectorAll("#timetableTable tbody tr").forEach(r=>{
+      if(r.children[0].innerText===cls.time){
+        r.children[col].innerHTML=`<span class="course" onclick="editClass(this)">${cls.name}</span>`;
+      }
+    });
+  });
+}
+
+function addClass(){
+  let name=className.value;
+  let day=classDay.value;
+  let time=classTime.value;
+  if(!name||!day||!time){alert("Fill all fields");return;}
+
+  const col={Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5}[day];
+  let conflict=false;
+
+  document.querySelectorAll("#timetableTable tbody tr").forEach(r=>{
+    if(r.children[0].innerText===time && r.children[col].innerHTML!==""){
+      conflict=true;
+      conflictTable.innerHTML+=`
+      <tr>
+        <td>${day}</td><td>${time}</td><td>${r.children[col].innerText}</td><td>${name}</td>
+        <td><button class="btn" onclick="resolve(this, '${day}', '${time}', '${name}')">Resolve</button><button class="btn btn-delete" onclick="deleteConflict(this)">Delete</button></td>
+      </tr>`;
+      totalConflicts++; conflictCount.innerText=totalConflicts;
+    }
+  });
+
+  if(conflict){alert("⚠ Conflict detected!"); return;}
+
+  document.querySelectorAll("#timetableTable tbody tr").forEach(r=>{
+    if(r.children[0].innerText===time){
+      r.children[col].innerHTML=`<span class="course" onclick="editClass(this)">${name}</span>`;
+    }
+  });
+
+  className.value="";classDay.value="";classTime.value="";
+}
+
+function resolve(btn, day, time, newClassName){
+  const col={Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5}[day];
+  document.querySelectorAll("#timetableTable tbody tr").forEach(r=>{
+    if(r.children[0].innerText===time){
+      r.children[col].innerHTML=`<span class="course" onclick="editClass(this)">${newClassName}</span>`;
+    }
+  });
+  btn.parentElement.parentElement.remove();
+  totalConflicts--; conflictCount.innerText=totalConflicts;
+}
+
+function deleteConflict(btn){
+  if(confirm("Are you sure?")){btn.parentElement.parentElement.remove(); totalConflicts--; conflictCount.innerText=totalConflicts;}
+}
+
+function editClass(el){
+  let oldName = el.innerText; let cell = el.parentElement; let row = cell.parentElement;
+  let oldTime = row.children[0].innerText; let dayIndex = cell.cellIndex;
+  let days = ["","Monday","Tuesday","Wednesday","Thursday","Friday"]; let oldDay = days[dayIndex];
+  let newName = prompt("Edit class name (empty = delete):", oldName); if(newName === null) return; newName = newName.trim();
+  if(newName === ""){el.remove(); return;}
+  let newDay = prompt("Edit day (Monday–Friday):", oldDay); if(newDay === null) return;
+  let newTime = prompt("Edit time:\n8:00 - 9:30\n9:45 - 11:15\n11:30 - 13:00\n14:00 - 15:30\n15:45 - 17:15", oldTime); if(newTime === null) return;
+  el.remove();
+  const col = {Monday:1, Tuesday:2, Wednesday:3, Thursday:4, Friday:5}[newDay];
+  document.querySelectorAll("#timetableTable tbody tr").forEach(r=>{
+    if(r.children[0].innerText === newTime){
+      r.children[col].innerHTML = `<span class="course" onclick="editClass(this)">${newName}</span>`;
+    }
+  });
+}
+
+// --- COURSES FUNCTIONS (FIXED) ---
+function addCourse(name = null) {
+  // FIX: Correctly get the input element's value
+  const courseName = name || document.getElementById('courseName').value;
+  if (!courseName) return alert("Please enter a course name.");
+  
+  const id = courseIdCounter++;
+  const row = `
+    <tr data-id="${id}">
+      <td>${courseName}</td>
+      <td>
+        <button class="btn" onclick="editCourse(${id})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteCourse(${id})">Delete</button>
+      </td>
+    </tr>`;
+  courseTable.innerHTML += row;
+  if (!name) document.getElementById('courseName').value = ""; // FIX: Clear the input field
+}
+
+function editCourse(id) {
+  const row = document.querySelector(`#courseTable tr[data-id='${id}']`);
+  const nameCell = row.children[0];
+  const newName = prompt("Edit Course Name:", nameCell.innerText);
+  if (newName !== null && newName.trim() !== "") {
+    nameCell.innerText = newName.trim();
+  }
+}
+
+function deleteCourse(id) {
+  if (confirm("Are you sure you want to delete this course?")) {
+    const row = document.querySelector(`#courseTable tr[data-id='${id}']`);
+    row.remove();
+  }
+}
+
+// --- MODULES FUNCTIONS (FIXED) ---
+function addModule(name = null, course = null) {
+  // FIX: Correctly get the input elements' values
+  const moduleName = name || document.getElementById('moduleName').value;
+  const moduleCourse = course || document.getElementById('moduleCourse').value;
+  if (!moduleName || !moduleCourse) return alert("Please fill all fields.");
+
+  const id = moduleIdCounter++;
+  const row = `
+    <tr data-id="${id}">
+      <td>${moduleName}</td>
+      <td>${moduleCourse}</td>
+      <td>
+        <button class="btn" onclick="editModule(${id})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteModule(${id})">Delete</button>
+      </td>
+    </tr>`;
+  moduleTable.innerHTML += row;
+  if (!name) { 
+    document.getElementById('moduleName').value = ""; // FIX: Clear the input field
+    document.getElementById('moduleCourse').value = ""; // FIX: Clear the input field
+  }
+}
+
+function editModule(id) {
+  const row = document.querySelector(`#moduleTable tr[data-id='${id}']`);
+  const nameCell = row.children[0];
+  const courseCell = row.children[1];
+  
+  const newName = prompt("Edit Module Name:", nameCell.innerText);
+  if (newName !== null && newName.trim() !== "") {
+    nameCell.innerText = newName.trim();
+  }
+  const newCourse = prompt("Edit Course:", courseCell.innerText);
+  if (newCourse !== null && newCourse.trim() !== "") {
+    courseCell.innerText = newCourse.trim();
+  }
+}
+
+function deleteModule(id) {
+  if (confirm("Are you sure you want to delete this module?")) {
+    const row = document.querySelector(`#moduleTable tr[data-id='${id}']`);
+    row.remove();
+  }
+}
+
+// --- PROFESSORS FUNCTIONS (FIXED) ---
+function addProfessor(name = null, dept = null) {
+  // FIX: Correctly get the input elements' values
+  const profName = name || document.getElementById('profName').value;
+  const profDept = dept || document.getElementById('profDept').value;
+  if (!profName || !profDept) return alert("Please fill all fields.");
+
+  const id = profIdCounter++;
+  const row = `
+    <tr data-id="${id}">
+      <td>${profName}</td>
+      <td>${profDept}</td>
+      <td>
+        <button class="btn" onclick="editProfessor(${id})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteProfessor(${id})">Delete</button>
+      </td>
+    </tr>`;
+  profTable.innerHTML += row;
+  if (!name) { 
+    document.getElementById('profName').value = ""; // FIX: Clear the input field
+    document.getElementById('profDept').value = ""; // FIX: Clear the input field
+  }
+}
+
+function editProfessor(id) {
+  const row = document.querySelector(`#profTable tr[data-id='${id}']`);
+  const nameCell = row.children[0];
+  const deptCell = row.children[1];
+
+  const newName = prompt("Edit Professor Name:", nameCell.innerText);
+  if (newName !== null && newName.trim() !== "") {
+    nameCell.innerText = newName.trim();
+  }
+  const newDept = prompt("Edit Department:", deptCell.innerText);
+  if (newDept !== null && newDept.trim() !== "") {
+    deptCell.innerText = newDept.trim();
+  }
+}
+
+function deleteProfessor(id) {
+  if (confirm("Are you sure you want to delete this professor?")) {
+    const row = document.querySelector(`#profTable tr[data-id='${id}']`);
+    row.remove();
+  }
+}
+
+// --- SETTINGS FUNCTION (No changes) ---
+function changeTheme(t){
+  document.body.style.background=t==="dark"?"#0f172a":"#f4f7fc";
+  document.body.style.color=t==="dark"?"#fff":"#333";
+}
+</script>
+
+</body>
+</html>

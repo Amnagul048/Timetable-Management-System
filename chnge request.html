@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Room Allocation Management</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f1f5f9;
+  margin:0;
+  padding:0;
+}
+
+header{
+  background:#1e293b;
+  color:white;
+  padding:15px;
+  text-align:center;
+}
+
+.form-section{
+  margin:20px auto;
+  text-align:center;
+}
+
+.form-section input{
+  padding:8px;
+  width:260px;
+  font-size:14px;
+}
+
+.form-section button{
+  padding:8px 15px;
+  margin-left:10px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  cursor:pointer;
+  border-radius:4px;
+}
+
+.form-section button:hover{
+  background:#1d4ed8;
+}
+
+.table-section{
+  width:60%;
+  margin:20px auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:white;
+}
+
+th, td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:center;
+}
+
+th{
+  background:#e2e8f0;
+}
+
+.edit-btn{
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  cursor:pointer;
+  border-radius:4px;
+}
+
+.delete-btn{
+  background:#dc2626;
+  color:white;
+  border:none;
+  padding:5px 10px;
+  cursor:pointer;
+  border-radius:4px;
+  margin-left:5px;
+}
+
+.edit-btn:hover{
+  background:#15803d;
+}
+
+.delete-btn:hover{
+  background:#b91c1c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>Room Allocation Management</h2>
+</header>
+
+<section class="form-section">
+  <input type="text" id="roomName" placeholder="Enter Room Number / Lab Name">
+  <button onclick="addRoom()">Add Room</button>
+</section>
+
+<section class="table-section">
+  <table>
+    <thead>
+      <tr>
+        <th>Room Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="roomList"></tbody>
+  </table>
+</section>
+
+<script>
+let rooms = [];
+
+function addRoom(){
+  const roomInput = document.getElementById("roomName");
+  const roomName = roomInput.value.trim();
+
+  if(roomName === ""){
+    alert("Please enter room name");
+    return;
+  }
+
+  rooms.push(roomName);
+  roomInput.value = "";
+  displayRooms();
+}
+
+function displayRooms(){
+  const roomList = document.getElementById("roomList");
+  roomList.innerHTML = "";
+
+  rooms.forEach((room, index) => {
+    roomList.innerHTML += `
+      <tr>
+        <td>${room}</td>
+        <td>
+          <button class="edit-btn" onclick="editRoom(${index})">Edit</button>
+          <button class="delete-btn" onclick="deleteRoom(${index})">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function deleteRoom(index){
+  rooms.splice(index, 1);
+  displayRooms();
+}
+
+function editRoom(index){
+  const newRoom = prompt("Update Room Name:", rooms[index]);
+  if(newRoom !== null && newRoom.trim() !== ""){
+    rooms[index] = newRoom.trim();
+    displayRooms();
+  }
+}
+</script>
+
+</body>
+</html>
